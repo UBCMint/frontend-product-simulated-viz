@@ -15,7 +15,7 @@ wss.on('connection', (ws) => {
 
         ws.send(JSON.stringify(data));
         console.log('Sent data:', data); // Log the data being sent
-    }, 10); // Sends data every 10ms
+    }, 3); // Sends data every 10ms
 
     ws.on('close', () => {
         clearInterval(interval);

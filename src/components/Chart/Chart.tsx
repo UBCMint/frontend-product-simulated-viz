@@ -20,7 +20,10 @@ export default function Chart() {
     const [data, setData] = useState<SignalData[]>([]);
     const [chartData, setChartData] = useState<any[]>([]);
 
-    const refreshRate = 250;
+    const NUM_SIGNALS_ON_CHART = 100;
+
+    const [lastTimestamp, setLastTimestamp] = useState<number | null>(null);
+    const [refreshRate, setRefreshRate] = useState<number | null>(null);
 
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8080');
@@ -30,7 +33,7 @@ export default function Chart() {
             setData((prevData) => {
                 const newData = [...prevData, parsedData];
                 setChartData(
-                    newData.slice(-refreshRate).map((entry) => ({
+                    newData.slice(-NUM_SIGNALS_ON_CHART).map((entry) => ({
                         time: new Date(entry.time).toLocaleTimeString(), // Convert time for display
                         signal1: entry.signals[0],
                         signal2: entry.signals[1],
@@ -39,12 +42,20 @@ export default function Chart() {
                         signal5: entry.signals[4],
                     }))
                 );
+
+                const currentTime = Date.now();
+                if (lastTimestamp) {
+                    const diff = currentTime - lastTimestamp;
+                    setRefreshRate(diff);
+                }
+                setLastTimestamp(currentTime);
+
                 return newData;
             });
         };
 
         return () => ws.close();
-    }, []);
+    }, [lastTimestamp]);
 
     return (
         <div className="container mx-auto py-8">
@@ -64,6 +75,10 @@ export default function Chart() {
                 <Line type="monotone" dataKey="signal4" stroke="#ff7300" />
                 <Line type="monotone" dataKey="signal5" stroke="#413ea0" />
             </LineChart>
+
+            <p>
+                Current refresh rate: {refreshRate ? `${refreshRate} ms` : ``}
+            </p>
 
             {/* Table to display real-time data */}
             <table className="min-w-full table-auto mt-6">
