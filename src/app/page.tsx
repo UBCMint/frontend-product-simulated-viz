@@ -1,101 +1,88 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from 'react';
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from 'recharts';
+
+// Define the structure of the data you expect
+interface SignalData {
+  time: string; // or use Date if you prefer
+  signals: number[]; // assuming signals is an array of numbers
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  // Specify the type for the data state
+  const [data, setData] = useState<SignalData[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:8080');
+
+    ws.onmessage = (event) => {
+      const parsedData: SignalData = JSON.parse(event.data);
+      setData((prevData) => [...prevData, parsedData]); // Append new data
+    };
+
+    return () => ws.close();
+  }, []);
+
+  // Prepare chart data from the websocket data
+  const chartData = data.map((entry) => ({
+    time: new Date(entry.time).toLocaleTimeString(), // Convert time for display
+    signal1: entry.signals[0],
+    signal2: entry.signals[1],
+    signal3: entry.signals[2],
+    signal4: entry.signals[3],
+    signal5: entry.signals[4],
+  }));
+
+  return (
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-6">Neural Signal Visualization</h1>
+
+      {/* Line chart for real-time signal data */}
+      <LineChart width={600} height={400} data={chartData}>
+        <CartesianGrid stroke="#ccc" />
+        <XAxis dataKey="time" />
+        <YAxis />
+        <Tooltip />
+        <Line type="monotone" dataKey="signal1" stroke="#8884d8" />
+        <Line type="monotone" dataKey="signal2" stroke="#82ca9d" />
+        <Line type="monotone" dataKey="signal3" stroke="#ffc658" />
+        <Line type="monotone" dataKey="signal4" stroke="#ff7300" />
+        <Line type="monotone" dataKey="signal5" stroke="#413ea0" />
+      </LineChart>
+
+      {/* Table to display real-time data */}
+      <table className="min-w-full table-auto mt-6">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Signal 1</th>
+            <th>Signal 2</th>
+            <th>Signal 3</th>
+            <th>Signal 4</th>
+            <th>Signal 5</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, index) => (
+            <tr key={index}>
+              <td>{new Date(row.time).toLocaleTimeString()}</td>
+              <td>{row.signals[0]}</td>
+              <td>{row.signals[1]}</td>
+              <td>{row.signals[2]}</td>
+              <td>{row.signals[3]}</td>
+              <td>{row.signals[4]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
