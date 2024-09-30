@@ -18,27 +18,33 @@ interface SignalData {
 export default function Chart() {
     // Specify the type for the data state
     const [data, setData] = useState<SignalData[]>([]);
+    const [chartData, setChartData] = useState<any[]>([]);
+
+    const refreshRate = 250;
 
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8080');
 
         ws.onmessage = (event) => {
             const parsedData: SignalData = JSON.parse(event.data);
-            setData((prevData) => [...prevData, parsedData]); // Append new data
+            setData((prevData) => {
+                const newData = [...prevData, parsedData];
+                setChartData(
+                    newData.slice(-refreshRate).map((entry) => ({
+                        time: new Date(entry.time).toLocaleTimeString(), // Convert time for display
+                        signal1: entry.signals[0],
+                        signal2: entry.signals[1],
+                        signal3: entry.signals[2],
+                        signal4: entry.signals[3],
+                        signal5: entry.signals[4],
+                    }))
+                );
+                return newData;
+            });
         };
 
         return () => ws.close();
     }, []);
-
-    // Prepare chart data from the websocket data
-    const chartData = data.map((entry) => ({
-        time: new Date(entry.time).toLocaleTimeString(), // Convert time for display
-        signal1: entry.signals[0],
-        signal2: entry.signals[1],
-        signal3: entry.signals[2],
-        signal4: entry.signals[3],
-        signal5: entry.signals[4],
-    }));
 
     return (
         <div className="container mx-auto py-8">
@@ -72,14 +78,14 @@ export default function Chart() {
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map((row, index) => (
+                    {chartData.map((row, index) => (
                         <tr key={index}>
-                            <td>{new Date(row.time).toLocaleTimeString()}</td>
-                            <td>{row.signals[0]}</td>
-                            <td>{row.signals[1]}</td>
-                            <td>{row.signals[2]}</td>
-                            <td>{row.signals[3]}</td>
-                            <td>{row.signals[4]}</td>
+                            <td>{row.time}</td>
+                            <td>{row.signal1}</td>
+                            <td>{row.signal2}</td>
+                            <td>{row.signal3}</td>
+                            <td>{row.signal4}</td>
+                            <td>{row.signal5}</td>
                         </tr>
                     ))}
                 </tbody>
