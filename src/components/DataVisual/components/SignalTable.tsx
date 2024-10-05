@@ -1,16 +1,6 @@
-interface DataPoint {
-    time: string;
-    signal1: number;
-    signal2: number;
-    signal3: number;
-    signal4: number;
-    signal5: number;
-}
+import { SignalProps } from '../util/schema';
 
-interface SignalTableProps {
-    chartData: DataPoint[];
-}
-export default function SignalTable({ chartData }: SignalTableProps) {
+export default function SignalTable({ chartData }: SignalProps) {
     return (
         <table className="min-w-full table-auto mt-6">
             <thead>

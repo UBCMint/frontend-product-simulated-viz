@@ -7,19 +7,9 @@ import {
     Tooltip,
 } from 'recharts';
 
-interface DataPoint {
-    time: string;
-    signal1: number;
-    signal2: number;
-    signal3: number;
-    signal4: number;
-    signal5: number;
-}
+import { SignalProps } from '../util/schema';
 
-interface SignalChartProps {
-    chartData: DataPoint[];
-}
-export default function SignalChart({ chartData }: SignalChartProps) {
+export default function SignalChart({ chartData }: SignalProps) {
     return (
         <LineChart width={600} height={400} data={chartData}>
             <CartesianGrid stroke="#ccc" />

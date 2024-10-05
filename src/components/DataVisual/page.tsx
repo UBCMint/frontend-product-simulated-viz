@@ -1,53 +1,77 @@
-import { useEffect, useState } from 'react';
-import SignalTable from './SignalTable';
-import SignalChart from './SignalChart';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import SignalTable from './components/SignalTable';
+import SignalChart from './components/SignalChart';
 
-// Define the structure of the data you expect
-interface SignalData {
-    time: string; // or use Date if you prefer
-    signals: number[]; // assuming signals is an array of numbers
-}
+import { SignalData, CircularBuffer, DataPoint } from './util/schema';
 
 export default function DataVisual() {
-    const [data, setData] = useState<SignalData[]>([]);
-    const [chartData, setChartData] = useState<any[]>([]);
+    const NUM_SIGNALS_ON_CHART = 256;
 
-    const NUM_SIGNALS_ON_CHART = 100;
+    const bufferRef = useRef(
+        new CircularBuffer<SignalData>(NUM_SIGNALS_ON_CHART)
+    );
 
-    const [lastTimestamp, setLastTimestamp] = useState<number | null>(null);
-    const [refreshRate, setRefreshRate] = useState<number | null>(null);
+    const [updateCounter, setUpdateCounter] = useState(0);
+    const [signalsPerSecond, setSignalsPerSecond] = useState(0);
+    const [fps, setFps] = useState(0);
+
+    const signalCountRef = useRef(0);
+    const frameCountRef = useRef(0);
+    const lastIntervalRef = useRef(Date.now());
+
+    const updateData = useCallback((newData: SignalData) => {
+        bufferRef.current.push(newData);
+        signalCountRef.current++;
+        setUpdateCounter((prev) => prev + 1);
+    }, []);
 
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8080');
-
         ws.onmessage = (event) => {
             const parsedData: SignalData = JSON.parse(event.data);
-            setData((prevData) => {
-                const newData = [...prevData, parsedData];
-                setChartData(
-                    newData.slice(-NUM_SIGNALS_ON_CHART).map((entry) => ({
-                        time: new Date(entry.time).toLocaleTimeString(), // Convert time for display
-                        signal1: entry.signals[0],
-                        signal2: entry.signals[1],
-                        signal3: entry.signals[2],
-                        signal4: entry.signals[3],
-                        signal5: entry.signals[4],
-                    }))
-                );
+            updateData(parsedData);
+        };
+        return () => ws.close();
+    }, [updateData]);
 
-                const currentTime = Date.now();
-                if (lastTimestamp) {
-                    const diff = currentTime - lastTimestamp;
-                    setRefreshRate(diff);
-                }
-                setLastTimestamp(currentTime);
+    useEffect(() => {
+        let animationFrameId: number;
 
-                return newData;
-            });
+        const measureFps = () => {
+            frameCountRef.current++;
+            animationFrameId = requestAnimationFrame(measureFps);
         };
 
-        return () => ws.close();
-    }, [lastTimestamp]);
+        measureFps();
+
+        const intervalId = setInterval(() => {
+            const now = Date.now();
+            const elapsed = (now - lastIntervalRef.current) / 1000; // Convert to seconds
+
+            setSignalsPerSecond(Math.round(signalCountRef.current / elapsed));
+            setFps(Math.round(frameCountRef.current / elapsed));
+
+            signalCountRef.current = 0;
+            frameCountRef.current = 0;
+            lastIntervalRef.current = now;
+        }, 1000); // Update every second
+
+        return () => {
+            clearInterval(intervalId);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, []);
+
+    const chartData = useMemo<DataPoint[]>(() => {
+        return bufferRef.current.getItems().map((entry) => ({
+            time: new Date(entry.time).toLocaleTimeString(),
+            signal1: entry.signals[0],
+            signal2: entry.signals[1],
+            signal3: entry.signals[2],
+            signal4: entry.signals[3],
+            signal5: entry.signals[4],
+        }));
+    }, [updateCounter]);
 
     return (
         <div className="container mx-auto py-8">
@@ -55,7 +79,8 @@ export default function DataVisual() {
                 Neural Signal Visualization
             </h1>
             <SignalChart chartData={chartData} />
-            <p>{refreshRate ? `${refreshRate} ms` : ``}</p>
+            <p>Signals per second: {signalsPerSecond}</p>
+            <p>FPS: {fps}</p>
             <SignalTable chartData={chartData} />
         </div>
     );
