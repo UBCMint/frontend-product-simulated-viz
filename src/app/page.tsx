@@ -1,11 +1,11 @@
 'use client';
 
-import Chart from '@/components/Chart/Chart';
+import DataVisual from '@/components/DataVisual/page';
 
 export default function Home() {
     return (
         <>
-            <Chart />
+            <DataVisual />
         </>
     );
 }
