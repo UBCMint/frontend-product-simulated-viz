@@ -1,3 +1,4 @@
+import { useEffect, useState, useRef, useMemo } from 'react';
 import {
     LineChart,
     Line,
@@ -6,56 +7,90 @@ import {
     YAxis,
     Tooltip,
 } from 'recharts';
+import throttle from 'lodash/throttle';
 
-import { useEffect, useState } from 'react';
-
-// Define the structure of the data you expect
+// type definition for SignalData
 interface SignalData {
-    time: string; // or use Date if you prefer
-    signals: number[]; // assuming signals is an array of numbers
+    time: string;
+    signals: number[];
 }
 
 export default function Chart() {
-    // Specify the type for the data state
     const [data, setData] = useState<SignalData[]>([]);
     const [chartData, setChartData] = useState<any[]>([]);
+    const [fps, setFps] = useState<number>(0);
+    const [signalsPerSecond, setSignalsPerSecond] = useState<number>(0);
 
     const NUM_SIGNALS_ON_CHART = 100;
 
-    const [lastTimestamp, setLastTimestamp] = useState<number | null>(null);
-    const [refreshRate, setRefreshRate] = useState<number | null>(null);
+    const signalCountRef = useRef(0);
+    const lastIntervalRef = useRef(Date.now());
+
+    // throttled function to update chart data
+    const updateChartData = useRef(
+        throttle((newData: any[]) => {
+            setChartData(
+                newData.slice(-NUM_SIGNALS_ON_CHART).map((entry) => ({
+                    time: new Date(entry.time).toLocaleTimeString(),
+                    signal1: entry.signals[0],
+                    signal2: entry.signals[1],
+                    signal3: entry.signals[2],
+                    signal4: entry.signals[3],
+                    signal5: entry.signals[4],
+                }))
+            );
+        }, 100)
+    ).current;
+
+    const memoizedChartData = useMemo(() => {
+        return data.slice(-NUM_SIGNALS_ON_CHART).map((entry) => ({
+            time: new Date(entry.time).toLocaleTimeString(),
+            signal1: entry.signals[0],
+            signal2: entry.signals[1],
+            signal3: entry.signals[2],
+            signal4: entry.signals[3],
+            signal5: entry.signals[4],
+        }));
+    }, [data]);
 
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8080');
 
         ws.onmessage = (event) => {
             const parsedData: SignalData = JSON.parse(event.data);
+            signalCountRef.current++;
             setData((prevData) => {
                 const newData = [...prevData, parsedData];
-                setChartData(
-                    newData.slice(-NUM_SIGNALS_ON_CHART).map((entry) => ({
-                        time: new Date(entry.time).toLocaleTimeString(), // Convert time for display
-                        signal1: entry.signals[0],
-                        signal2: entry.signals[1],
-                        signal3: entry.signals[2],
-                        signal4: entry.signals[3],
-                        signal5: entry.signals[4],
-                    }))
-                );
-
-                const currentTime = Date.now();
-                if (lastTimestamp) {
-                    const diff = currentTime - lastTimestamp;
-                    setRefreshRate(diff);
-                }
-                setLastTimestamp(currentTime);
-
+                updateChartData(newData);
                 return newData;
             });
         };
 
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+
         return () => ws.close();
-    }, [lastTimestamp]);
+    }, []);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            const now = Date.now();
+            const elapsed = (now - lastIntervalRef.current) / 1000;
+
+            setFps(Math.round(signalCountRef.current / elapsed));
+            setSignalsPerSecond(Math.round(signalCountRef.current / elapsed));
+
+            signalCountRef.current = 0;
+            lastIntervalRef.current = now;
+        }, 1000);
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     return (
         <div className="container mx-auto py-8">
@@ -63,10 +98,9 @@ export default function Chart() {
                 Neural Signal Visualization
             </h1>
 
-            {/* Line chart for real-time signal data */}
-            <LineChart width={600} height={400} data={chartData}>
+            <LineChart width={600} height={400} data={memoizedChartData}>
                 <CartesianGrid stroke="#ccc" />
-                <XAxis dataKey="time" />
+                <XAxis dataKey="time" tick={{ fontSize: 12 }} />
                 <YAxis />
                 <Tooltip />
                 <Line type="monotone" dataKey="signal1" stroke="#8884d8" />
@@ -76,11 +110,9 @@ export default function Chart() {
                 <Line type="monotone" dataKey="signal5" stroke="#413ea0" />
             </LineChart>
 
-            <p>
-                Current refresh rate: {refreshRate ? `${refreshRate} ms` : ``}
-            </p>
+            <p>FPS: {fps}</p>
+            <p>Signals per second: {signalsPerSecond}</p>
 
-            {/* Table to display real-time data */}
             <table className="min-w-full table-auto mt-6">
                 <thead>
                     <tr>
@@ -93,7 +125,7 @@ export default function Chart() {
                     </tr>
                 </thead>
                 <tbody>
-                    {chartData.map((row, index) => (
+                    {memoizedChartData.map((row, index) => (
                         <tr key={index}>
                             <td>{row.time}</td>
                             <td>{row.signal1}</td>
