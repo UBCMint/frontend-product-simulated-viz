@@ -8,26 +8,31 @@ import {
     Tooltip,
 } from 'recharts';
 
+// type definition for SignalData
 interface SignalData {
     time: string;
     signals: number[];
 }
 
 export default function Chart() {
-    const [data, setData] = useState<SignalData[]>([]);
-    const [chartData, setChartData] = useState<any[]>([]);
-    const [fps, setFps] = useState<number>(0);
-    const [signalsPerSecond, setSignalsPerSecond] = useState<number>(0);
+    const [data, setData] = useState<SignalData[]>([]); // hook for raw data
+    const [chartData, setChartData] = useState<any[]>([]); // hook for processed data for chart/table (might need to change?)
+    const [fps, setFps] = useState<number>(0); // hook for current fps, updated every second
+    const [signalsPerSecond, setSignalsPerSecond] = useState<number>(0); // hook for keeping track of signals received per second
 
+    // arbitrary constant for number of signals to be shown on x axis (can be changed to be variable with a slider)
     const NUM_SIGNALS_ON_CHART = 100;
 
+    // using useRef hook so that frontend only re-renders after final fps or signal count is calculated for that second
     const frameCountRef = useRef(0);
     const signalCountRef = useRef(0);
     const lastIntervalRef = useRef(Date.now());
 
+    // everything here loads as soon as component first renders
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8080');
 
+        // logic that runs for every received message
         ws.onmessage = (event) => {
             const parsedData: SignalData = JSON.parse(event.data);
             signalCountRef.current++;
@@ -50,6 +55,7 @@ export default function Chart() {
         return () => ws.close();
     }, []);
 
+    // not sure if using another useEffect is a good idea here tbh
     useEffect(() => {
         let animationFrameId: number;
 
