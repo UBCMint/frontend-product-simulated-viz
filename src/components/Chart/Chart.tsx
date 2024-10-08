@@ -1,3 +1,4 @@
+import { useEffect, useState, useRef } from 'react';
 import {
     LineChart,
     Line,
@@ -7,34 +8,39 @@ import {
     Tooltip,
 } from 'recharts';
 
-import { useEffect, useState } from 'react';
-
-// Define the structure of the data you expect
+// type definition for SignalData
 interface SignalData {
-    time: string; // or use Date if you prefer
-    signals: number[]; // assuming signals is an array of numbers
+    time: string;
+    signals: number[];
 }
 
 export default function Chart() {
-    // Specify the type for the data state
-    const [data, setData] = useState<SignalData[]>([]);
-    const [chartData, setChartData] = useState<any[]>([]);
+    const [data, setData] = useState<SignalData[]>([]); // hook for raw data
+    const [chartData, setChartData] = useState<any[]>([]); // hook for processed data for chart/table (might need to change?)
+    const [fps, setFps] = useState<number>(0); // hook for current fps, updated every second
+    const [signalsPerSecond, setSignalsPerSecond] = useState<number>(0); // hook for keeping track of signals received per second
 
+    // arbitrary constant for number of signals to be shown on x axis (can be changed to be variable with a slider)
     const NUM_SIGNALS_ON_CHART = 100;
 
-    const [lastTimestamp, setLastTimestamp] = useState<number | null>(null);
-    const [refreshRate, setRefreshRate] = useState<number | null>(null);
+    // using useRef hook so that frontend only re-renders after final fps or signal count is calculated for that second
+    const frameCountRef = useRef(0);
+    const signalCountRef = useRef(0);
+    const lastIntervalRef = useRef(Date.now());
 
+    // everything here loads as soon as component first renders
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8080');
 
+        // logic that runs for every received message
         ws.onmessage = (event) => {
             const parsedData: SignalData = JSON.parse(event.data);
+            signalCountRef.current++;
             setData((prevData) => {
                 const newData = [...prevData, parsedData];
                 setChartData(
                     newData.slice(-NUM_SIGNALS_ON_CHART).map((entry) => ({
-                        time: new Date(entry.time).toLocaleTimeString(), // Convert time for display
+                        time: new Date(entry.time).toLocaleTimeString(),
                         signal1: entry.signals[0],
                         signal2: entry.signals[1],
                         signal3: entry.signals[2],
@@ -42,20 +48,41 @@ export default function Chart() {
                         signal5: entry.signals[4],
                     }))
                 );
-
-                const currentTime = Date.now();
-                if (lastTimestamp) {
-                    const diff = currentTime - lastTimestamp;
-                    setRefreshRate(diff);
-                }
-                setLastTimestamp(currentTime);
-
                 return newData;
             });
         };
 
         return () => ws.close();
-    }, [lastTimestamp]);
+    }, []);
+
+    // not sure if using another useEffect is a good idea here tbh
+    useEffect(() => {
+        let animationFrameId: number;
+
+        const measureFps = () => {
+            frameCountRef.current++;
+            animationFrameId = requestAnimationFrame(measureFps);
+        };
+
+        measureFps();
+
+        const intervalId = setInterval(() => {
+            const now = Date.now();
+            const elapsed = (now - lastIntervalRef.current) / 1000; // Convert to seconds
+
+            setFps(Math.round(frameCountRef.current / elapsed));
+            setSignalsPerSecond(Math.round(signalCountRef.current / elapsed));
+
+            frameCountRef.current = 0;
+            signalCountRef.current = 0;
+            lastIntervalRef.current = now;
+        }, 1000); // Update every second
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            clearInterval(intervalId);
+        };
+    }, []);
 
     return (
         <div className="container mx-auto py-8">
@@ -63,7 +90,6 @@ export default function Chart() {
                 Neural Signal Visualization
             </h1>
 
-            {/* Line chart for real-time signal data */}
             <LineChart width={600} height={400} data={chartData}>
                 <CartesianGrid stroke="#ccc" />
                 <XAxis dataKey="time" />
@@ -76,11 +102,9 @@ export default function Chart() {
                 <Line type="monotone" dataKey="signal5" stroke="#413ea0" />
             </LineChart>
 
-            <p>
-                Current refresh rate: {refreshRate ? `${refreshRate} ms` : ``}
-            </p>
+            <p>FPS: {fps}</p>
+            <p>Signals per second: {signalsPerSecond}</p>
 
-            {/* Table to display real-time data */}
             <table className="min-w-full table-auto mt-6">
                 <thead>
                     <tr>
