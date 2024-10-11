@@ -81,14 +81,14 @@ export default function Chart() {
 
     return (
         <div className="container mx-auto py-8">
-            <h1 className="text-3xl font-bold mb-6">
+            <h1 className="text-3xl font-sans mb-6 font-medium">
                 Neural Signal Visualization
             </h1>
 
             <LineChart chartData={chartData} />
 
-            <p>FPS: {fps}</p>
-            <p>Signals per second: {signalsPerSecond}</p>
+            <p className="font-sans">FPS: {fps}</p>
+            <p className="font-sans">Signals per second: {signalsPerSecond}</p>
 
             <DataTable chartData={chartData} />
         </div>
