@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     LineChart,
     Line,
@@ -8,11 +7,18 @@ import {
     Tooltip,
 } from 'recharts';
 
-interface LineChartComponentProps {
-    chartData: any[];
+interface ChartProps {
+    chartData: {
+        time: string;
+        signal1: number;
+        signal2: number;
+        signal3: number;
+        signal4: number;
+        signal5: number;
+    }[];
 }
 
-const LineChartComponent: React.FC<LineChartComponentProps> = ({ chartData }) => {
+const LineCharts: React.FC<ChartProps> = ({ chartData }) => {
     return (
         <LineChart width={600} height={400} data={chartData}>
             <CartesianGrid stroke="#ccc" />
@@ -28,4 +34,4 @@ const LineChartComponent: React.FC<LineChartComponentProps> = ({ chartData }) =>
     );
 };
 
-export default LineChartComponent;
+export default LineCharts;

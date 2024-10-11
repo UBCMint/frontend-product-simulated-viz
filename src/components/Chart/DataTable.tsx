@@ -1,10 +1,15 @@
-import React from 'react';
-
-interface DataTableProps {
-    chartData: any[];
+interface TableProps {
+    chartData: {
+        time: string;
+        signal1: number;
+        signal2: number;
+        signal3: number;
+        signal4: number;
+        signal5: number;
+    }[];
 }
 
-const DataTable: React.FC<DataTableProps> = ({ chartData }) => {
+const DataTable: React.FC<TableProps> = ({ chartData }) => {
     return (
         <table className="min-w-full table-auto mt-6">
             <thead>
