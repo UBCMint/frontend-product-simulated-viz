@@ -1,5 +1,5 @@
 import {
-    LineChart as RechartsLineChart,
+    LineChart,
     Line,
     CartesianGrid,
     XAxis,
@@ -11,7 +11,7 @@ import { Props } from './utils/schema';
 
 const LineCharts: React.FC<{ renderData: Props[] }> = ({ renderData }) => {
     return (
-        <RechartsLineChart width={600} height={400} data={renderData}>
+        <LineChart width={600} height={400} data={renderData}>
             <CartesianGrid stroke="#ccc" />
             <XAxis dataKey="time" />
             <YAxis />
@@ -21,7 +21,7 @@ const LineCharts: React.FC<{ renderData: Props[] }> = ({ renderData }) => {
             <Line type="monotone" dataKey="signal3" stroke="#ffc658" />
             <Line type="monotone" dataKey="signal4" stroke="#ff7300" />
             <Line type="monotone" dataKey="signal5" stroke="#413ea0" />
-        </RechartsLineChart>
+        </LineChart>
     );
 };
 
