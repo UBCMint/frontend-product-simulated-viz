@@ -1,7 +1,6 @@
-import { useEffect, useState, useRef } from 'react';
 import { SignalData, Props } from '@/types/schema';
 
-export default function rechartsProcessing(renderData: SignalData[]): Props[] {
+export function rechartsProcessing(renderData: SignalData[]): Props[] {
     if (!renderData) return [];
 
     return renderData.map((entry: SignalData) => ({

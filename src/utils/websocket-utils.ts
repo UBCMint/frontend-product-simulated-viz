@@ -2,13 +2,13 @@ import { useEffect, useState, useRef } from 'react';
 import { SignalData } from '@/types/schema';
 
 export default function useWebSocketData(
-    NUM_SIGNALS_ON_CHART: number,
-    DESIRED_FPS: number
+    chartSize: number,
+    batchesPerSecond: number
 ) {
-    const [renderData, setRenderData] = useState<SignalData[]>([]); // data to be rendered
-    const bufferRef = useRef<SignalData[]>([]); // storing all data from websocket
+    const [renderData, setRenderData] = useState<SignalData[]>([]); //  batch data here
+    const bufferRef = useRef<SignalData[]>([]); // all data here
+    const intervalTime = 1000 / batchesPerSecond;
 
-    // bufferRef code to consume WebSocket
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8080');
 
@@ -17,24 +17,25 @@ export default function useWebSocketData(
             bufferRef.current.push(parsedData);
         };
 
-        // send batches at specified interval
-        const intervalId = setInterval(() => {
+        const updateRenderData = () => {
             if (bufferRef.current.length > 0) {
                 const nextBatch = bufferRef.current.splice(
                     0,
-                    Math.min(bufferRef.current.length, NUM_SIGNALS_ON_CHART)
+                    Math.min(bufferRef.current.length, chartSize)
                 );
-                setRenderData((prevData) => {
-                    const updatedData = [...prevData, ...nextBatch].slice(
-                        -NUM_SIGNALS_ON_CHART
-                    );
-                    return updatedData;
-                });
+                setRenderData((prevData) =>
+                    [...prevData, ...nextBatch].slice(-chartSize)
+                );
             }
-        }, 1000 / DESIRED_FPS);
+        };
 
-        return () => ws.close(); // unmounting websocket = cleaning
-    }, []);
+        const intervalId = setInterval(updateRenderData, intervalTime);
+
+        return () => {
+            ws.close();
+            clearInterval(intervalId);
+        };
+    }, [chartSize, batchesPerSecond]); // re-run when either parameter changes
 
     return { renderData };
 }

@@ -11,3 +11,10 @@ export interface Props {
     signal4: number;
     signal5: number;
 }
+
+export interface SlidersProps {
+    batchesPerSecond: number;
+    setBatchesPerSecond: (value: number) => void;
+    chartSize: number;
+    setChartSize: (value: number) => void;
+}
