@@ -21,11 +21,36 @@ const LineCharts: React.FC<{ renderData: Props[] }> = ({ renderData }) => {
                 <XAxis dataKey="time" />
                 <YAxis />
                 <Tooltip />
-                <Line type="monotone" dataKey="signal1" stroke="#8884d8" />
-                <Line type="monotone" dataKey="signal2" stroke="#82ca9d" />
-                <Line type="monotone" dataKey="signal3" stroke="#ffc658" />
-                <Line type="monotone" dataKey="signal4" stroke="#ff7300" />
-                <Line type="monotone" dataKey="signal5" stroke="#413ea0" />
+                <Line
+                    type="monotone"
+                    isAnimationActive={false}
+                    dataKey="signal1"
+                    stroke="#8884d8"
+                />
+                <Line
+                    type="monotone"
+                    isAnimationActive={false}
+                    dataKey="signal2"
+                    stroke="#82ca9d"
+                />
+                <Line
+                    type="monotone"
+                    isAnimationActive={false}
+                    dataKey="signal3"
+                    stroke="#ffc658"
+                />
+                <Line
+                    type="monotone"
+                    isAnimationActive={false}
+                    dataKey="signal4"
+                    stroke="#ff7300"
+                />
+                <Line
+                    type="monotone"
+                    isAnimationActive={false}
+                    dataKey="signal5"
+                    stroke="#413ea0"
+                />
             </LineChart>
         </>
     );
