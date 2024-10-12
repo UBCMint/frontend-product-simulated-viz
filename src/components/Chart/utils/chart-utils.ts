@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { SignalData, Props } from './schema';
 
-const useFpsTracker = (signalCountRef: React.MutableRefObject<number>) => {
+export function useFpsTracker(signalCountRef: React.MutableRefObject<number>) {
     const [fps, setFps] = useState(0);
     const [signalsPerSecond, setSignalsPerSecond] = useState(0);
     const frameCountRef = useRef(0);
@@ -36,9 +36,7 @@ const useFpsTracker = (signalCountRef: React.MutableRefObject<number>) => {
     }, [signalCountRef]);
 
     return { fps, signalsPerSecond };
-};
-
-export default useFpsTracker;
+}
 
 export function rechartsProcessing(renderData: SignalData[]): Props[] {
     if (!renderData) return [];

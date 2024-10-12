@@ -1,5 +1,5 @@
 import useWebSocketData from './utils/websocket-utils';
-import useFpsTracker, { rechartsProcessing } from './utils/chart-utils';
+import { useFpsTracker, rechartsProcessing } from './utils/chart-utils';
 
 import LineChart from './LineChart';
 import DataTable from './DataTable';
