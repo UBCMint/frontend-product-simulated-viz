@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { SignalData } from './schema';
+import { SignalData } from '@/types/schema';
 
 const useWebSocketData = (NUM_SIGNALS_ON_CHART: number) => {
     const [renderData, setRenderData] = useState<SignalData[]>([]); // data to be rendered
