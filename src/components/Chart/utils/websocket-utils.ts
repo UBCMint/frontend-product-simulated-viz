@@ -2,36 +2,49 @@ import { useEffect, useState, useRef } from 'react';
 import { SignalData } from './schema';
 
 const useWebSocketData = (NUM_SIGNALS_ON_CHART: number) => {
-    const [data, setData] = useState<SignalData[]>([]);
-    const [chartData, setChartData] = useState<any[]>([]);
+    const [renderData, setRenderData] = useState<SignalData[]>([]); // data to be rendered
+    const bufferRef = useRef<SignalData[]>([]); // storing all data from websocket
     const signalCountRef = useRef(0);
+    const lastFrameTimeRef = useRef<number>(0);
 
+    // bufferRef code to consume WebSocket
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8080');
 
         ws.onmessage = (event) => {
             const parsedData: SignalData = JSON.parse(event.data);
             signalCountRef.current++;
-            setData((prevData) => {
-                const newData = [...prevData, parsedData];
-                setChartData(
-                    newData.slice(-NUM_SIGNALS_ON_CHART).map((entry) => ({
-                        time: new Date(entry.time).toLocaleTimeString(),
-                        signal1: entry.signals[0],
-                        signal2: entry.signals[1],
-                        signal3: entry.signals[2],
-                        signal4: entry.signals[3],
-                        signal5: entry.signals[4],
-                    }))
-                );
-                return newData;
-            });
+            bufferRef.current.push(parsedData);
         };
 
-        return () => ws.close();
+        return () => ws.close(); // unmounting websocket = cleaning
+    }, []);
+
+    useEffect(() => {
+        let animationFrameId: number;
+
+        const updateChart = (timestamp: number) => {
+            if (timestamp - lastFrameTimeRef.current >= 1000 / 60) {
+                if (bufferRef.current.length > 0) {
+                    setRenderData((prevData) =>
+                        [...prevData, ...bufferRef.current].slice(
+                            -NUM_SIGNALS_ON_CHART
+                        )
+                    );
+                }
+
+                lastFrameTimeRef.current = timestamp; // Update last frame timestamp
+            }
+
+            animationFrameId = requestAnimationFrame(updateChart);
+        };
+
+        animationFrameId = requestAnimationFrame(updateChart);
+
+        return () => cancelAnimationFrame(animationFrameId); // Cleanup animation frame
     }, [NUM_SIGNALS_ON_CHART]);
 
-    return { data, chartData, signalCountRef };
+    return { renderData, signalCountRef };
 };
 
 export default useWebSocketData;

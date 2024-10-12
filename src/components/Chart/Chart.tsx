@@ -4,10 +4,12 @@ import useFpsTracker from './utils/debug-utils';
 import LineChart from './LineChart';
 import DataTable from './DataTable';
 
+import { SignalData, Props } from './utils/schema';
+
 export default function Chart() {
     const NUM_SIGNALS_ON_CHART = 100;
 
-    const { chartData, signalCountRef } =
+    const { renderData, signalCountRef } =
         useWebSocketData(NUM_SIGNALS_ON_CHART);
 
     const { fps, signalsPerSecond } = useFpsTracker(signalCountRef);
@@ -18,12 +20,25 @@ export default function Chart() {
                 Neural Signal Visualization
             </h1>
 
-            <LineChart chartData={chartData} />
+            <LineChart renderData={rechartsProcessing(renderData)} />
 
             <p className="font-sans">FPS: {fps}</p>
             <p className="font-sans">Signals per second: {signalsPerSecond}</p>
 
-            <DataTable chartData={chartData} />
+            <DataTable renderData={rechartsProcessing(renderData)} />
         </div>
     );
+}
+
+function rechartsProcessing(renderData: SignalData[]): Props[] {
+    if (!renderData) return [];
+
+    return renderData.map((entry: SignalData) => ({
+        time: new Date(entry.time).toLocaleTimeString(),
+        signal1: entry.signals[0] || 0,
+        signal2: entry.signals[1] || 0,
+        signal3: entry.signals[2] || 0,
+        signal4: entry.signals[3] || 0,
+        signal5: entry.signals[4] || 0,
+    }));
 }

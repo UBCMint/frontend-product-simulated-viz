@@ -1,5 +1,5 @@
 import {
-    LineChart,
+    LineChart as RechartsLineChart,
     Line,
     CartesianGrid,
     XAxis,
@@ -7,20 +7,11 @@ import {
     Tooltip,
 } from 'recharts';
 
-interface ChartProps {
-    chartData: {
-        time: string;
-        signal1: number;
-        signal2: number;
-        signal3: number;
-        signal4: number;
-        signal5: number;
-    }[];
-}
+import { Props } from './utils/schema';
 
-const LineCharts: React.FC<ChartProps> = ({ chartData }) => {
+const LineCharts: React.FC<{ renderData: Props[] }> = ({ renderData }) => {
     return (
-        <LineChart width={600} height={400} data={chartData}>
+        <RechartsLineChart width={600} height={400} data={renderData}>
             <CartesianGrid stroke="#ccc" />
             <XAxis dataKey="time" />
             <YAxis />
@@ -30,7 +21,7 @@ const LineCharts: React.FC<ChartProps> = ({ chartData }) => {
             <Line type="monotone" dataKey="signal3" stroke="#ffc658" />
             <Line type="monotone" dataKey="signal4" stroke="#ff7300" />
             <Line type="monotone" dataKey="signal5" stroke="#413ea0" />
-        </LineChart>
+        </RechartsLineChart>
     );
 };
 
