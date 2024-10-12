@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { SignalData } from '@/types/schema';
 
-export default function useWebSocketData(
+export default function useWebsocket(
     chartSize: number,
     batchesPerSecond: number
 ) {

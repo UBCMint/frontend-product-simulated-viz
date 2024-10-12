@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import useWebSocketData from '@/utils/websocket-utils';
+import useWebsocket from '@/hooks/useWebsocket';
+import useSliderSettings from '@/hooks/useSliderSettings';
 import { rechartsProcessing } from '@/utils/chart-utils';
 
 import LineChart from './LineChart';
@@ -7,10 +7,9 @@ import DataTable from './DataTable';
 import Sliders from './Sliders';
 
 export default function Chart() {
-    const [batchesPerSecond, setBatchesPerSecond] = useState(60); // state to control batches per second
-    const [chartSize, setChartSize] = useState(50); // state to control chart size
-
-    const { renderData } = useWebSocketData(chartSize, batchesPerSecond);
+    const { batchesPerSecond, setBatchesPerSecond, chartSize, setChartSize } =
+        useSliderSettings();
+    const { renderData } = useWebsocket(chartSize, batchesPerSecond);
 
     return (
         <div className="container mx-auto py-8">

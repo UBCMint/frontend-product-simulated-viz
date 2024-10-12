@@ -19,6 +19,7 @@ export default function Sliders({
                 step={1}
                 onValueChange={(value) => setBatchesPerSecond(value[0])}
             />
+
             <h2 className="text-lg font-sans mb-2">Chart Size: {chartSize}</h2>
             <Slider
                 defaultValue={[chartSize]}
