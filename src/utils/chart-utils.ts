@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { SignalData, Props } from './schema';
+import { SignalData, Props } from '@/types/schema';
 
 export function useFpsTracker(signalCountRef: React.MutableRefObject<number>) {
     const [fps, setFps] = useState(0);

@@ -7,7 +7,7 @@ import {
     Tooltip,
 } from 'recharts';
 
-import { Props } from './utils/schema';
+import { Props } from '@/types/schema';
 
 const LineCharts: React.FC<{ renderData: Props[] }> = ({ renderData }) => {
     return (
