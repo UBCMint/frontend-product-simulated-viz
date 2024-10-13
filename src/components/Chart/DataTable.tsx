@@ -1,15 +1,6 @@
-interface TableProps {
-    chartData: {
-        time: string;
-        signal1: number;
-        signal2: number;
-        signal3: number;
-        signal4: number;
-        signal5: number;
-    }[];
-}
+import { Props } from '@/types/schema';
 
-const DataTable: React.FC<TableProps> = ({ chartData }) => {
+const DataTable: React.FC<{ renderData: Props[] }> = ({ renderData }) => {
     return (
         <table className="min-w-full table-auto mt-6">
             <thead>
@@ -23,7 +14,7 @@ const DataTable: React.FC<TableProps> = ({ chartData }) => {
                 </tr>
             </thead>
             <tbody>
-                {chartData.map((row, index) => (
+                {renderData.map((row, index) => (
                     <tr key={index}>
                         <td>{row.time}</td>
                         <td>{row.signal1}</td>
