@@ -1,32 +1,40 @@
 import { Props } from '@/types/schema';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const DataTable: React.FC<{ renderData: Props[] }> = ({ renderData }) => {
-    return (
-        <table className="min-w-full table-auto mt-6">
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Signal 1</th>
-                    <th>Signal 2</th>
-                    <th>Signal 3</th>
-                    <th>Signal 4</th>
-                    <th>Signal 5</th>
-                </tr>
-            </thead>
-            <tbody>
-                {renderData.map((row, index) => (
-                    <tr key={index}>
-                        <td>{row.time}</td>
-                        <td>{row.signal1}</td>
-                        <td>{row.signal2}</td>
-                        <td>{row.signal3}</td>
-                        <td>{row.signal4}</td>
-                        <td>{row.signal5}</td>
-                    </tr>
+  return (
+    <Table>
+        <TableHeader>
+            <TableRow>
+                <TableHead>Time</TableHead>
+                <TableHead>Signal 1</TableHead>
+                <TableHead>Signal 2</TableHead>
+                <TableHead>Signal 3</TableHead>
+                <TableHead>Signal 4</TableHead>
+                <TableHead>Signal 5</TableHead>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            {renderData.map((row, index) => (
+                <TableRow key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}>
+                    <TableCell>{row.time}</TableCell>
+                    <TableCell>{row.signal1}</TableCell>
+                    <TableCell>{row.signal2}</TableCell>
+                    <TableCell>{row.signal3}</TableCell>
+                    <TableCell>{row.signal4}</TableCell>
+                    <TableCell>{row.signal5}</TableCell>
+                </TableRow>
                 ))}
-            </tbody>
-        </table>
-    );
+        </TableBody>
+    </Table>
+  );
 };
 
 export default DataTable;
