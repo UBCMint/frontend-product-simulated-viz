@@ -38,6 +38,7 @@ export default function Visualizer() {
                     <SyncChart renderData={processedData} />
                 )}
             </div>
+            <DataTable renderData={processedData} />
         </div>
     );
 }
