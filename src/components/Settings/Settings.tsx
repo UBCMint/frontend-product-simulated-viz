@@ -6,7 +6,7 @@ export default function Settings() {
     const { isStreaming, setIsStreaming } = useChartContext();
 
     const handleStartStream = () => {
-        setIsStreaming(!isStreaming); // Toggle streaming state
+        setIsStreaming(!isStreaming);
     };
 
     return (
