@@ -7,25 +7,22 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts';
+import { SignalData } from '@/types/schema';
+import { useChartContext } from '@/context/ChartContext';
 
-import useRenderTracker from '@/hooks/useRenderTracker';
-import { Props } from '@/types/schema';
+interface SynchronizedChartsProps {
+    renderData: SignalData[];
+}
 
-const SynchronizedCharts: React.FC<{ renderData: Props[] }> = ({
-    renderData,
+const SynchronizedCharts: React.FC<SynchronizedChartsProps> = ({
+    renderData = [],
 }) => {
-    const fps = useRenderTracker([renderData]);
+    const { signalsOn } = useChartContext();
 
     return (
         <>
-            <h2>LineChart FPS: {fps}</h2>
-            <ResponsiveContainer width="70  %" height={525}>
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateRows: 'repeat(5, 1fr)',
-                    }}
-                >
+            {signalsOn[0] && (
+                <ResponsiveContainer width="90%" height={100}>
                     <LineChart
                         width={1000}
                         height={100}
@@ -42,11 +39,15 @@ const SynchronizedCharts: React.FC<{ renderData: Props[] }> = ({
                         <Line
                             type="monotone"
                             dataKey="signal1"
-                            stroke="#9F76A8"
+                            stroke="#8884d8"
                             strokeWidth={2}
                         />
                     </LineChart>
+                </ResponsiveContainer>
+            )}
 
+            {signalsOn[1] && (
+                <ResponsiveContainer width="90%" height={100}>
                     <LineChart
                         width={1000}
                         height={100}
@@ -57,17 +58,22 @@ const SynchronizedCharts: React.FC<{ renderData: Props[] }> = ({
                         <XAxis dataKey="time" tick={false} />
                         <YAxis
                             domain={[-200, 200]}
-                            tickFormatter={(value) => `${value} uV`} // Add 'uV' to each tick
+                            tickFormatter={(value) => `${value} uV`}
                         />
                         <Tooltip />
+
                         <Line
                             type="monotone"
                             dataKey="signal2"
-                            stroke="#4e73b1"
+                            stroke="#82ca9d"
                             strokeWidth={2}
                         />
                     </LineChart>
+                </ResponsiveContainer>
+            )}
 
+            {signalsOn[2] && (
+                <ResponsiveContainer width="90%" height={100}>
                     <LineChart
                         width={1000}
                         height={100}
@@ -78,17 +84,21 @@ const SynchronizedCharts: React.FC<{ renderData: Props[] }> = ({
                         <XAxis dataKey="time" tick={false} />
                         <YAxis
                             domain={[-200, 200]}
-                            tickFormatter={(value) => `${value} uV`} // Add 'uV' to each tick
+                            tickFormatter={(value) => `${value} uV`}
                         />
                         <Tooltip />
                         <Line
                             type="monotone"
                             dataKey="signal3"
-                            stroke="#45947f"
+                            stroke="#ffc658"
                             strokeWidth={2}
                         />
                     </LineChart>
+                </ResponsiveContainer>
+            )}
 
+            {signalsOn[3] && (
+                <ResponsiveContainer width="90%" height={100}>
                     <LineChart
                         width={1000}
                         height={100}
@@ -99,17 +109,21 @@ const SynchronizedCharts: React.FC<{ renderData: Props[] }> = ({
                         <XAxis dataKey="time" tick={false} />
                         <YAxis
                             domain={[-200, 200]}
-                            tickFormatter={(value) => `${value} uV`} // Add 'uV' to each tick
+                            tickFormatter={(value) => `${value} uV`}
                         />
                         <Tooltip />
                         <Line
                             type="monotone"
                             dataKey="signal4"
-                            stroke="#eac53f"
+                            stroke="#ff7300"
                             strokeWidth={2}
                         />
                     </LineChart>
+                </ResponsiveContainer>
+            )}
 
+            {signalsOn[4] && (
+                <ResponsiveContainer width="90%" height={100}>
                     <LineChart
                         width={1000}
                         height={100}
@@ -117,18 +131,10 @@ const SynchronizedCharts: React.FC<{ renderData: Props[] }> = ({
                         syncId="timeAxis"
                     >
                         <CartesianGrid stroke="#ccc" />
-                        <XAxis
-                            dataKey="time"
-                            tick={true}
-                            label={{
-                                value: 'Time (ms)',
-                                dy: 10,
-                                style: { fill: '#333', fontWeight: 'bold' },
-                            }}
-                        />
+                        <XAxis dataKey="time" tick={false} />
                         <YAxis
                             domain={[-200, 200]}
-                            tickFormatter={(value) => `${value} uV`} // Add 'uV' to each tick
+                            tickFormatter={(value) => `${value} uV`}
                         />
                         <Tooltip />
                         <Line
@@ -138,8 +144,8 @@ const SynchronizedCharts: React.FC<{ renderData: Props[] }> = ({
                             strokeWidth={2}
                         />
                     </LineChart>
-                </div>
-            </ResponsiveContainer>
+                </ResponsiveContainer>
+            )}
         </>
     );
 };
