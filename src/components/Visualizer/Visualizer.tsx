@@ -8,8 +8,13 @@ import { SignalData } from '@/types/schema';
 import { useChartContext } from '@/context/ChartContext';
 
 export default function Visualizer() {
-    const { batchesPerSecond, chartSize, selectedChart } = useChartContext();
-    const { renderData } = useWebsocket(chartSize, batchesPerSecond);
+    const { batchesPerSecond, chartSize, selectedChart, isStreaming } =
+        useChartContext();
+    const { renderData } = useWebsocket(
+        chartSize,
+        batchesPerSecond,
+        isStreaming
+    );
 
     const processedData: SignalData[] = rechartsProcessing(renderData).map(
         (item) => ({
@@ -23,14 +28,16 @@ export default function Visualizer() {
     );
 
     return (
-        <div className="container mx-auto py-8">
+        <div className="space-y-8">
             <Settings />
-            {selectedChart === 'line' && (
-                <LineChart renderData={processedData} />
-            )}
-            {selectedChart === 'sync' && (
-                <SyncChart renderData={processedData} />
-            )}
+            <div className="flex flex-col items-center">
+                {selectedChart === 'line' && (
+                    <LineChart renderData={processedData} />
+                )}
+                {selectedChart === 'sync' && (
+                    <SyncChart renderData={processedData} />
+                )}
+            </div>
         </div>
     );
 }

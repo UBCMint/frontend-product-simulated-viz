@@ -6,7 +6,9 @@ import { ChartProvider } from '@/context/ChartContext';
 export default function Home() {
     return (
         <ChartProvider>
-            <Visualizer />
+            <div className="container mx-auto py-8">
+                <Visualizer />
+            </div>
         </ChartProvider>
     );
 }

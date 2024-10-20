@@ -9,6 +9,10 @@ interface ChartContextProps {
     toggleSignal: (index: number) => void;
     selectedChart: string;
     setSelectedChart: (value: string) => void;
+    isStreaming: boolean;
+    setIsStreaming: (value: boolean) => void;
+    trackFps: boolean;
+    setTrackFps: (value: boolean) => void;
 }
 
 // Create the context
@@ -28,6 +32,8 @@ export const ChartProvider: React.FC<{ children: React.ReactNode }> = ({
         true,
     ]);
     const [selectedChart, setSelectedChart] = useState('sync');
+    const [isStreaming, setIsStreaming] = useState(false);
+    const [trackFps, setTrackFps] = useState(false);
 
     const toggleSignal = (index: number) => {
         setSignalsOn((prevSignals) =>
@@ -46,6 +52,10 @@ export const ChartProvider: React.FC<{ children: React.ReactNode }> = ({
                 toggleSignal,
                 selectedChart,
                 setSelectedChart,
+                isStreaming,
+                setIsStreaming,
+                trackFps,
+                setTrackFps,
             }}
         >
             {children}
@@ -53,7 +63,6 @@ export const ChartProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 };
 
-// Custom hook to use the Chart context
 export const useChartContext = () => {
     const context = useContext(ChartContext);
     if (!context) {

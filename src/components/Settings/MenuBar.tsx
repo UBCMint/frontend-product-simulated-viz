@@ -4,6 +4,8 @@ import {
     MenubarItem,
     MenubarMenu,
     MenubarCheckboxItem,
+    MenubarRadioGroup,
+    MenubarRadioItem,
     MenubarTrigger,
 } from '@/components/ui/menubar';
 import { useChartContext } from '@/context/ChartContext';
@@ -17,20 +19,32 @@ export default function MenuBar() {
         setChartSize,
         signalsOn,
         toggleSignal,
+        selectedChart,
         setSelectedChart,
+        trackFps,
+        setTrackFps,
     } = useChartContext();
+
+    const handleTrackFps = () => {
+        setTrackFps(!trackFps); // toggle tracking state
+    };
 
     return (
         <Menubar>
             <MenubarMenu>
                 <MenubarTrigger>System Control Panel</MenubarTrigger>
                 <MenubarContent>
-                    <MenubarItem onSelect={() => setSelectedChart('sync')}>
-                        Sync Chart
-                    </MenubarItem>
-                    <MenubarItem onSelect={() => setSelectedChart('line')}>
-                        Aggregated Chart
-                    </MenubarItem>
+                    <MenubarRadioGroup
+                        value={selectedChart}
+                        onValueChange={setSelectedChart}
+                    >
+                        <MenubarRadioItem value="sync">
+                            Sync Chart
+                        </MenubarRadioItem>
+                        <MenubarRadioItem value="line">
+                            Aggregated Chart
+                        </MenubarRadioItem>
+                    </MenubarRadioGroup>
                 </MenubarContent>
             </MenubarMenu>
 
@@ -74,6 +88,9 @@ export default function MenuBar() {
                             step={1}
                             onValueCommit={(value) => setChartSize(value[0])}
                         />
+                    </MenubarItem>
+                    <MenubarItem onClick={handleTrackFps}>
+                        Track FPS
                     </MenubarItem>
                 </MenubarContent>
             </MenubarMenu>

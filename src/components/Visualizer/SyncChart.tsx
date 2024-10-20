@@ -9,9 +9,11 @@ import {
 } from 'recharts';
 import { ChartProps } from '@/types/schema';
 import { useChartContext } from '@/context/ChartContext';
+import useRenderTracker from '@/hooks/useRenderTracker';
 
 export default function SyncChart({ renderData = [] }: ChartProps) {
-    const { signalsOn } = useChartContext();
+    const { signalsOn, trackFps } = useChartContext();
+    const fps = useRenderTracker([renderData]);
 
     return (
         <>
@@ -31,6 +33,7 @@ export default function SyncChart({ renderData = [] }: ChartProps) {
                         />
                         <Tooltip />
                         <Line
+                            isAnimationActive={false}
                             type="monotone"
                             dataKey="signal1"
                             stroke="#8884d8"
@@ -57,6 +60,7 @@ export default function SyncChart({ renderData = [] }: ChartProps) {
                         <Tooltip />
 
                         <Line
+                            isAnimationActive={false}
                             type="monotone"
                             dataKey="signal2"
                             stroke="#82ca9d"
@@ -82,6 +86,7 @@ export default function SyncChart({ renderData = [] }: ChartProps) {
                         />
                         <Tooltip />
                         <Line
+                            isAnimationActive={false}
                             type="monotone"
                             dataKey="signal3"
                             stroke="#ffc658"
@@ -107,6 +112,7 @@ export default function SyncChart({ renderData = [] }: ChartProps) {
                         />
                         <Tooltip />
                         <Line
+                            isAnimationActive={false}
                             type="monotone"
                             dataKey="signal4"
                             stroke="#ff7300"
@@ -132,6 +138,7 @@ export default function SyncChart({ renderData = [] }: ChartProps) {
                         />
                         <Tooltip />
                         <Line
+                            isAnimationActive={false}
                             type="monotone"
                             dataKey="signal5"
                             stroke="#f66a69"
@@ -140,6 +147,7 @@ export default function SyncChart({ renderData = [] }: ChartProps) {
                     </LineChart>
                 </ResponsiveContainer>
             )}
+            {trackFps && <p>FPS: {fps}</p>}
         </>
     );
 }
