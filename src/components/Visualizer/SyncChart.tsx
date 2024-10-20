@@ -7,16 +7,10 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts';
-import { SignalData } from '@/types/schema';
+import { ChartProps } from '@/types/schema';
 import { useChartContext } from '@/context/ChartContext';
 
-interface SynchronizedChartsProps {
-    renderData: SignalData[];
-}
-
-const SynchronizedCharts: React.FC<SynchronizedChartsProps> = ({
-    renderData = [],
-}) => {
+export default function SyncChart({ renderData = [] }: ChartProps) {
     const { signalsOn } = useChartContext();
 
     return (
@@ -148,6 +142,4 @@ const SynchronizedCharts: React.FC<SynchronizedChartsProps> = ({
             )}
         </>
     );
-};
-
-export default SynchronizedCharts;
+}

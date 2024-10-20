@@ -7,14 +7,10 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts';
-import { SignalData } from '@/types/schema';
+import { ChartProps } from '@/types/schema';
 import { useChartContext } from '@/context/ChartContext';
 
-interface LineChartProps {
-    renderData: SignalData[];
-}
-
-const LineCharts: React.FC<LineChartProps> = ({ renderData = [] }) => {
+export default function LineCharts({ renderData = [] }: ChartProps) {
     const { signalsOn } = useChartContext();
 
     return (
@@ -67,6 +63,4 @@ const LineCharts: React.FC<LineChartProps> = ({ renderData = [] }) => {
             </RechartsLineChart>
         </ResponsiveContainer>
     );
-};
-
-export default LineCharts;
+}
